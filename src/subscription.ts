@@ -1,3 +1,4 @@
+import { create } from 'domain'
 import {
   OutputSchema as RepoEvent,
   isCommit,
@@ -17,13 +18,9 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     }
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
-    const postsToCreate = ops.posts.creates
-      .filter((create) => {
-        // only alf-related posts
-        return create.record.text.toLowerCase().includes('alf')
-      })
+    const likedPosts = ops.likes.creates.map((like) => like.record.subject.uri);
+    const postsToCreate = ops.posts.creates.filter((create) => create.record?.reply?.parent.uri === undefined)
       .map((create) => {
-        // map alf-related posts to a db row
         return {
           uri: create.uri,
           cid: create.cid,
@@ -40,11 +37,27 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .execute()
     }
     if (postsToCreate.length > 0) {
+      console.log('creating posts', postsToCreate)
       await this.db
         .insertInto('post')
         .values(postsToCreate)
         .onConflict((oc) => oc.doNothing())
         .execute()
+    }
+    if (likedPosts.length > 0) {
+      const toDelete = await this.db
+        .selectFrom('post')
+        .where('uri', 'in', likedPosts)
+        .selectAll()
+        .execute()
+      const result = await this.db
+        .deleteFrom('post')
+        .where('uri', 'in', likedPosts)
+        .execute()
+      if (toDelete.length > 0) {
+        console.log(toDelete)
+        console.log('deleted posts', result[0].numDeletedRows)
+      }
     }
   }
 }

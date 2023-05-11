@@ -5,7 +5,7 @@ import { validateAuth } from './auth'
 
 export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
-    if (params.feed !== 'did:example:alice/app.bsky.feed.generator/whats-alf') {
+    if (params.feed !== 'did:example:alice/app.bsky.feed.generator/whats-not') {
       throw new InvalidRequestError(
         'Unsupported algorithm',
         'UnsupportedAlgorithm',
@@ -23,6 +23,7 @@ export default function (server: Server, ctx: AppContext) {
 
     let builder = ctx.db
       .selectFrom('post')
+      .where('indexedAt', '<', "strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 minutes')")
       .selectAll()
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
@@ -45,9 +46,9 @@ export default function (server: Server, ctx: AppContext) {
       replyTo:
         row.replyParent && row.replyRoot
           ? {
-              root: row.replyRoot,
-              parent: row.replyParent,
-            }
+            root: row.replyRoot,
+            parent: row.replyParent,
+          }
           : undefined,
     }))
 
