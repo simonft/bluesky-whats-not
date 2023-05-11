@@ -10,13 +10,6 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     if (!isCommit(evt)) return
     const ops = await getOpsByType(evt)
 
-    // This logs the text of every post off the firehose.
-    // Just for fun :)
-    // Delete before actually using
-    for (const post of ops.posts.creates) {
-      console.log(post.record.text)
-    }
-
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const likedPosts = ops.likes.creates.map((like) => like.record.subject.uri);
     const postsToCreate = ops.posts.creates.filter((create) => create.record?.reply?.parent.uri === undefined)
@@ -54,10 +47,6 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .deleteFrom('post')
         .where('uri', 'in', likedPosts)
         .execute()
-      if (toDelete.length > 0) {
-        console.log(toDelete)
-        console.log('deleted posts', result[0].numDeletedRows)
-      }
     }
   }
 }
