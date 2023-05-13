@@ -2,6 +2,8 @@ import http from 'http'
 import events from 'events'
 import express from 'express'
 import { DidResolver, MemoryCache } from '@atproto/did-resolver'
+import morgan from 'morgan'
+
 import { createServer } from './lexicon'
 import feedGeneration from './feed-generation'
 import { createDb, Database, migrateToLatest } from './db'
@@ -60,6 +62,7 @@ export class FeedGenerator {
       cfg,
     }
     feedGeneration(server, ctx)
+    app.use(morgan('combined'))
     app.use((req, res, next) => {
       res.append('Access-Control-Allow-Origin', ['*']);
       res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
