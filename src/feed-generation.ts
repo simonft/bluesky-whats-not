@@ -23,10 +23,11 @@ export default function (server: Server, ctx: AppContext) {
 
     let builder = ctx.db
       .selectFrom('post')
-      .where('indexedAt', '<', "strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 minutes')")
       .selectAll()
+      .where('indexedAt', '<', new Date(new Date().getTime() - 30 * 60 * 1000).toISOString())
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
+      .limit(20)
 
     if (params.cursor) {
       const [indexedAt, cid] = params.cursor.split('..')

@@ -30,7 +30,6 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .execute()
     }
     if (postsToCreate.length > 0) {
-      console.log('creating posts', postsToCreate)
       await this.db
         .insertInto('post')
         .values(postsToCreate)
