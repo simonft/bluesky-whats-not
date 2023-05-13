@@ -5,7 +5,7 @@ import { validateAuth } from './auth'
 
 export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
-    if (params.feed !== 'did:example:alice/app.bsky.feed.generator/whats-not') {
+    if (params.feed !== `did:web:${ctx.cfg.hostname}/app.bsky.feed.generator/whats-not`) {
       throw new InvalidRequestError(
         'Unsupported algorithm',
         'UnsupportedAlgorithm',
@@ -27,7 +27,7 @@ export default function (server: Server, ctx: AppContext) {
       .where('indexedAt', '<', new Date(new Date().getTime() - 30 * 60 * 1000).toISOString())
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
-      .limit(20)
+      .limit(100)
 
     if (params.cursor) {
       const [indexedAt, cid] = params.cursor.split('..')

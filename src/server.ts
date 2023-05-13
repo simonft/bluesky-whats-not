@@ -31,8 +31,8 @@ export class FeedGenerator {
   static create(config?: Partial<Config>) {
     const cfg: Config = {
       port: config?.port ?? 3000,
-      hostname: config?.hostname ?? 'feed-generator.test',
-      sqliteLocation: config?.sqliteLocation ?? ':memory:',
+      hostname: config?.hostname ?? 'goldman.taila37a4.ts.net',
+      sqliteLocation: config?.sqliteLocation ?? 'sqlite://:memory:',
       subscriptionEndpoint: config?.subscriptionEndpoint ?? 'wss://bsky.social',
       serviceDid: config?.serviceDid ?? 'did:example:test',
     }
@@ -60,6 +60,12 @@ export class FeedGenerator {
       cfg,
     }
     feedGeneration(server, ctx)
+    app.use((req, res, next) => {
+      res.append('Access-Control-Allow-Origin', ['*']);
+      res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+      res.append('Access-Control-Allow-Headers', 'Content-Type');
+      next();
+    });
     app.use(server.xrpc.router)
     app.use(wellKnown(cfg.hostname))
 
