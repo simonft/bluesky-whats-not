@@ -5,7 +5,7 @@ import { validateAuth } from './auth'
 
 export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
-    if (params.feed !== `did:web:${ctx.cfg.hostname}/app.bsky.feed.generator/whats-not`) {
+    if (params.feed !== `at://did:web:${ctx.cfg.hostname}/app.bsky.feed.generator/whats-not`) {
       throw new InvalidRequestError(
         'Unsupported algorithm',
         'UnsupportedAlgorithm',
@@ -44,13 +44,6 @@ export default function (server: Server, ctx: AppContext) {
 
     const feed = res.map((row) => ({
       post: row.uri,
-      replyTo:
-        row.replyParent && row.replyRoot
-          ? {
-            root: row.replyRoot,
-            parent: row.replyParent,
-          }
-          : undefined,
     }))
 
     let cursor: string | undefined
