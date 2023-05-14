@@ -27,7 +27,7 @@ export default function (server: Server, ctx: AppContext) {
       .where('indexedAt', '<', new Date(new Date().getTime() - 30 * 60 * 1000).toISOString())
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
-      .limit(100)
+      .limit(params.limit)
 
     if (params.cursor) {
       const [indexedAt, cid] = params.cursor.split('::')
